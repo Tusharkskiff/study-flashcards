@@ -12,7 +12,7 @@ function createFlashcardViewer({ mount, topic, images, topicId }) {
   let index = 0;
   const total = images.length;
   const storageKey = `sf_progress_${topicId}`;
-  const preloaded = new Map(); // order -> HTMLImageElement
+  let renderToken = 0; // guards against a slow older fetch overwriting a newer render
 
   mount.innerHTML = `
     <div class="viewer-wrap" id="viewerRoot">
@@ -37,23 +37,19 @@ function createFlashcardViewer({ mount, topic, images, topicId }) {
   const root = mount.querySelector("#viewerRoot");
 
   function preload(i) {
-    if (i < 0 || i >= total || preloaded.has(i)) return;
-    const img = new Image();
-    img.src = images[i].url;
-    preloaded.set(i, img);
+    if (i < 0 || i >= total) return;
+    Api.getImageDataUri(images[i].fileId).catch(() => {}); // warms the cache silently
   }
 
-  function render(direction) {
+  async function render(direction) {
+    const myToken = ++renderToken;
     stampEl.textContent = `${index + 1} / ${total}`;
     prevBtn.disabled = index === 0;
     nextBtn.disabled = index === total - 1;
 
     const face = document.createElement("div");
     face.className = "card-face";
-    const img = document.createElement("img");
-    img.alt = `${topic.name} card ${index + 1} of ${total}`;
-    img.src = images[index].url;
-    face.appendChild(img);
+    face.innerHTML = `<div class="loader"></div>`;
 
     const old = stage.querySelector(".card-face");
     if (direction && old) {
@@ -64,6 +60,20 @@ function createFlashcardViewer({ mount, topic, images, topicId }) {
       old.remove();
     }
     stage.appendChild(face);
+
+    const thisIndex = index;
+    try {
+      const dataUri = await Api.getImageDataUri(images[thisIndex].fileId);
+      if (myToken !== renderToken) return; // a newer navigation happened while we were loading
+      face.innerHTML = "";
+      const img = document.createElement("img");
+      img.alt = `${topic.name} card ${thisIndex + 1} of ${total}`;
+      img.src = dataUri;
+      face.appendChild(img);
+    } catch (err) {
+      if (myToken !== renderToken) return;
+      face.innerHTML = `<div style="color: var(--danger); font-size: 0.85rem; padding: 20px; text-align:center;">Couldn't load this image. ${escapeHtml(err.message || "")}</div>`;
+    }
 
     preload(index - 1);
     preload(index + 1);

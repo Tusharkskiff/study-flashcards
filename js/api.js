@@ -56,10 +56,21 @@ const Api = (() => {
     }
   }
 
+  const imageCache = new Map(); // fileId -> "data:mime;base64,..." (in-memory, per page load)
+
+  async function getImageDataUri(fileId) {
+    if (imageCache.has(fileId)) return imageCache.get(fileId);
+    const data = await readAction("getImage", { fileId });
+    const uri = `data:${data.mimeType};base64,${data.base64}`;
+    imageCache.set(fileId, uri);
+    return uri;
+  }
+
   return {
     // ---- public / read-only ----
     getLibrary: () => readAction("getLibrary"),
     getTopic: (topicId) => readAction("getTopic", { topicId }),
+    getImageDataUri,
     search: (query) => readAction("search", { query }),
 
     // ---- admin / write ----

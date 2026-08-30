@@ -31,6 +31,35 @@ const Auth = (() => {
     });
   }
 
+  /**
+   * The GIS script tag loads with async/defer, so it can finish loading
+   * AFTER our own code has already run once on DOMContentLoaded. Callers
+   * should await this before calling init()/renderButton() to avoid a
+   * race where the sign-in button silently never appears.
+   */
+  function ready(timeoutMs = 10000) {
+    return new Promise((resolve, reject) => {
+      if (window.google && google.accounts && google.accounts.id) {
+        resolve();
+        return;
+      }
+      const start = Date.now();
+      const interval = setInterval(() => {
+        if (window.google && google.accounts && google.accounts.id) {
+          clearInterval(interval);
+          resolve();
+        } else if (Date.now() - start > timeoutMs) {
+          clearInterval(interval);
+          reject(new Error(
+            "Google Sign-In didn't load. This is usually an ad blocker/privacy " +
+            "extension blocking accounts.google.com, or a network issue. " +
+            "Disable any blocker for this site and refresh."
+          ));
+        }
+      }, 100);
+    });
+  }
+
   function renderButton(el) {
     if (!window.google || !google.accounts || !google.accounts.id) return;
     google.accounts.id.renderButton(el, {
@@ -89,5 +118,5 @@ const Auth = (() => {
     }
   }
 
-  return { init, renderButton, getIdToken, getProfile, isSignedIn, signOut };
+  return { init, ready, renderButton, getIdToken, getProfile, isSignedIn, signOut };
 })();

@@ -14,6 +14,27 @@ const Admin = (() => {
     Theme.init();
     document.getElementById("themeToggle").onclick = Theme.toggle;
 
+    const status = gate.querySelector("#gateStatus");
+
+    if (!CONFIG.GOOGLE_CLIENT_ID || CONFIG.GOOGLE_CLIENT_ID.indexOf("YOUR_GOOGLE_OAUTH_CLIENT_ID") === 0) {
+      status.textContent = "GOOGLE_CLIENT_ID hasn't been set in js/config.js yet.";
+      status.className = "denied";
+      return;
+    }
+    if (!CONFIG.API_URL || CONFIG.API_URL.indexOf("YOUR_APPS_SCRIPT") === 0) {
+      status.textContent = "API_URL hasn't been set in js/config.js yet.";
+      status.className = "denied";
+      return;
+    }
+
+    try {
+      await Auth.ready();
+    } catch (err) {
+      status.textContent = err.message;
+      status.className = "denied";
+      return;
+    }
+
     Auth.init(onSignedIn);
     Auth.renderButton(document.getElementById("g_id_button_wrap"));
 
@@ -196,12 +217,30 @@ const Admin = (() => {
       return;
     }
     grid.innerHTML = images.map((img, i) => `
-      <div class="image-card" draggable="true" data-id="${img.id}">
+      <div class="image-card" draggable="true" data-id="${img.id}" data-file-id="${img.fileId}">
         <span class="idx-badge">${i + 1}</span>
-        <img src="${img.thumbUrl || img.url}" alt="Card ${i + 1}" loading="lazy">
+        <div class="loader" style="margin:auto;"></div>
         <button class="del-btn" data-id="${img.id}" title="Delete card" aria-label="Delete card">✕</button>
       </div>
     `).join("");
+
+    grid.querySelectorAll(".image-card").forEach((card) => {
+      Api.getImageDataUri(card.dataset.fileId)
+        .then((dataUri) => {
+          const loader = card.querySelector(".loader");
+          if (loader) loader.remove();
+          const img = document.createElement("img");
+          img.src = dataUri;
+          img.alt = "";
+          card.insertBefore(img, card.querySelector(".del-btn"));
+        })
+        .catch((err) => {
+          const loader = card.querySelector(".loader");
+          if (loader) loader.outerHTML = `<div style="font-size:0.7rem; color:var(--danger); text-align:center; padding:8px;">Failed to load</div>`;
+          console.error(err);
+        });
+    });
+
     grid.querySelectorAll(".del-btn").forEach((btn) => {
       btn.onclick = (e) => {
         e.stopPropagation();

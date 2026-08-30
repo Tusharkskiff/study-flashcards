@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>My Study Cards</title>
+<meta name="description" content="A study flashcard library.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#/">
+        <span class="brand-mark">SC</span>
+        <span id="siteTitle">My Study Cards</span>
+      </a>
+      <div class="topbar-actions">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search subjects or topics…" autocomplete="off">
+          <div class="search-results" id="searchResults" style="display:none;"></div>
+        </div>
+        <button class="icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle dark mode">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="breadcrumbs" id="breadcrumbs"></div>
+    <div id="appRoot"></div>
+  </main>
+
+  <footer class="site-footer">
+    Study library · images served from Google Drive, organized as flashcards.
+    <br><a href="admin.html" style="color:var(--ink-soft);">Admin</a>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/viewer.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById("siteTitle").textContent = CONFIG.SITE_TITLE;
+    document.title = CONFIG.SITE_TITLE;
+  </script>
+</body>
+</html>

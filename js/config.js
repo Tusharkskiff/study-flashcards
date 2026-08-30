@@ -21,7 +21,7 @@
  * ============================================================
  */
 const CONFIG = {
-  API_URL: "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE",
-  GOOGLE_CLIENT_ID: "YOUR_GOOGLE_OAUTH_CLIENT_ID_HERE.apps.googleusercontent.com",
+  API_URL: "https://script.google.com/macros/s/AKfycbyZkWl7c-VR3aSqOu-Y85ovVpB6GB43I4So_D5mlgf_XBO3pigld3iHwCkXtUFf5n_W/exec",
+  GOOGLE_CLIENT_ID: "454289766628-f6kmn82t7fd855jl164df22qg79h27dt.apps.googleusercontent.com",
   SITE_TITLE: "My Study Cards"
 };

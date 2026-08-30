@@ -291,6 +291,9 @@ img { max-width: 100%; display: block; }
   backface-visibility: hidden;
   padding: 14px;
   box-sizing: border-box;
+  
+  overflow: auto;              /* allows scrolling */
+  display: block;              /* instead of grid */
 }
 .card-face img {
   max-width: 100%;

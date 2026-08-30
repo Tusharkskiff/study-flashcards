@@ -285,22 +285,29 @@ img { max-width: 100%; display: block; }
 .card-face {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
   background: var(--paper-raised);
   backface-visibility: hidden;
   padding: 14px;
   box-sizing: border-box;
-  
-  overflow: auto;              /* allows scrolling */
-  display: block;              /* instead of grid */
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
+
 .card-face img {
   display: block;
-  width: auto;
+
+  width: 100%;
   height: auto;
-  max-width: none;             /* don't shrink image */
-  max-height: none;    
+
+  max-width: 900px;
+  max-height: none;
+
+  flex-shrink: 0;
 }
 .loader {
   width: 34px; height: 34px;
